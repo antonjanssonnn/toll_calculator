@@ -20,24 +20,30 @@ public class TollCalculator
         foreach (DateTime date in dates)
         {
             int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            int tempFee = GetTollFee(intervalStart, vehicle); 
 
-            long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-            long minutes = diffInMillies/1000/60;
+            long minutes = CalculateMinutesBetweenPassings(date.Millisecond, intervalStart.Millisecond);
 
             if (minutes <= 60)
             {
                 if (totalFee > 0) totalFee -= tempFee;
-                if (nextFee >= tempFee) tempFee = nextFee;
+                if (nextFee >= tempFee) tempFee = nextFee; 
                 totalFee += tempFee;
             }
             else
             {
                 totalFee += nextFee;
+                intervalStart = date;
             }
         }
         if (totalFee > 60) totalFee = 60;
         return totalFee;
+    }
+    private long CalculateMinutesBetweenPassings(long milliSeconds, long startMilliSeconds)
+    {
+        long diffInMillies = milliSeconds - startMilliSeconds;
+        long minutes = diffInMillies/1000/60;
+        return minutes;
     }
 
     private bool IsTollFreeVehicle(Vehicle vehicle)
