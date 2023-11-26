@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace TollFeeCalculator
 {
+    //The "Super-class"
     public interface Vehicle
     {
         String GetVehicleType();
+
+        bool IsTollFreeVehicle();
     }
 }
