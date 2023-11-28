@@ -13,14 +13,22 @@ public class TollCalculator
      * @return - the total toll fee for that day
      */
 
-    public int GetTollFee(Vehicle vehicle, DateTime[] dates)
+    public int CalculateTotalTollFee(Vehicle vehicle, DateTime[] dates)
+    {   
+        if(IsTollFreeVehicle(vehicle)) return 0;
+        else{
+            return GetTotalFee(dates);
+        }
+    }
+
+    private int GetTotalFee(DateTime[] dates)
     {
         DateTime intervalStart = dates[0];
         int totalFee = 0;
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle); 
+            int nextFee = GetTollFee(date);
+            int tempFee = GetTollFee(intervalStart); 
 
             long minutes = CalculateMinutesBetweenPassings(date.Millisecond, intervalStart.Millisecond);
 
@@ -39,6 +47,14 @@ public class TollCalculator
         if (totalFee > 60) totalFee = 60;
         return totalFee;
     }
+    
+    /**
+     * Calculate the minutes between toll passings
+     *
+     * @param milliSeconds - current time of passing
+     * @param startMilliSeconds   - start time for 60min interval
+     * @return - the amount of minutes between passings
+     */
     private long CalculateMinutesBetweenPassings(long milliSeconds, long startMilliSeconds)
     {
         long diffInMillies = milliSeconds - startMilliSeconds;
@@ -46,15 +62,15 @@ public class TollCalculator
         return minutes;
     }
 
-    private bool IsTollFreeVehicle(Vehicle vehicle)
+    /**
+     * Calculate the toll fee for a specific passing
+     *
+     * @param date - date and time of passing
+     * @return - the toll fee for the date and time of passing
+     */ 
+    public int GetTollFee(DateTime date)
     {
-        if (vehicle == null) return false;
-        else return vehicle.IsTollFreeVehicle();
-    }
-
-    public int GetTollFee(DateTime date, Vehicle vehicle)
-    {
-        if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
+        if (IsTollFreeDate(date)) return 0;
 
         int hour = date.Hour;
         int minute = date.Minute;
@@ -71,6 +87,25 @@ public class TollCalculator
         else return 0;
     }
 
+    /**
+     * Checks whether the passing vehicle is toll free
+     *
+     * @param vehicle - the type of vehicle passing the toll
+     * @return - true or false depending if it is a toll free vehicle
+     */
+    
+    private bool IsTollFreeVehicle(Vehicle vehicle)
+    {
+        if (vehicle == null) return false;
+        else return vehicle.IsTollFreeVehicle();
+    }
+
+    /**
+     * Checks whether the current date is toll free
+     *
+     * @param date - the time and date of passing
+     * @return - true or false depending if it is a toll free date or not
+     */
     private Boolean IsTollFreeDate(DateTime date)
     {
         int year = date.Year;
