@@ -34,35 +34,25 @@ public class TollCalculator
         int totalFee = 0;
         foreach (DateTime date in dates)
         {
-            int fee = CalculateHighestFeeWithinHour(intervalStart, date);
-            totalFee += fee;
-            intervalStart = date;
+            int nextFee = GetTollFee(date);
+            int tempFee = GetTollFee(intervalStart); 
+
+            long minutes = CalculateMinutesBetweenPassings(date.Millisecond, intervalStart.Millisecond);
+
+            if (minutes <= 60)
+            {
+                if (totalFee > 0) totalFee -= tempFee;
+                if (nextFee >= tempFee) tempFee = nextFee; 
+                totalFee += tempFee;
+            }
+            else
+            {
+                totalFee += nextFee;
+                intervalStart = date;
+            }
         }
         if (totalFee > 60) totalFee = 60;
         return totalFee;
-    }
-
-    /**
-     * Calculate the highest fee within an hour
-     *
-     * @param startDate - the time of the toll passing before next one
-     * @param currDate - the time of the newest toll passing
-     * @return - highest toll fee for the hour
-     */
-
-    private int CalculateHighestFeeWithinHour(DateTime startDate, DateTime currDate){
-        int feeStart = GetTollFee(startDate);
-        int feeCurr = GetTollFee(currDate);
-        long minutes = CalculateMinutesBetweenPassings(currDate.Millisecond, startDate.Millisecond);
-       
-        if(minutes <= 60)
-        {
-            return Math.Max(feeStart, feeCurr);
-        }
-        else
-        {
-            return feeCurr;   
-        }
     }
 
     /**
